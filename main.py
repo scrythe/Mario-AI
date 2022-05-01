@@ -7,10 +7,10 @@ import retro
 def eval_genomes(genomes, config, env):
     for genome_id, genome in genomes:
         genome: neat.DefaultGenome
+        genome.fitness = 0
         game = Game(genome, config, env)
         while not game.done:
             game.run()
-        genome.fitness = 0
 
 
 def run_neat(config_file, env):

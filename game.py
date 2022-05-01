@@ -29,6 +29,7 @@ class Game:
         self.env.render()
         actions = self.get_actions()
         self.screen, reward, self.done, info = self.env.step(actions)
+        self.genome.fitness += reward
 
     def rescale_screen(self):
         resized_screen = cv2.resize(
