@@ -2,18 +2,19 @@ import neat
 import os
 from game import Game
 import retro
+import pickle
 
 
-def eval_genomes(genomes, config, env):
-    for genome_id, genome in genomes:
-        genome: neat.DefaultGenome
-        genome.fitness = 0
-        game = Game(genome, config, env)
-        while not game.done:
-            game.run()
+def eval_genome(genome, config):
+    genome: neat.DefaultGenome
+    genome.fitness = 0
+    game = Game(genome, config)
+    while not game.done:
+        game.run()
+    return genome.fitness
 
 
-def run_neat(config_file, env):
+def run_neat(config_file):
     config = neat.Config(neat.DefaultGenome, neat.DefaultReproduction,
                          neat.DefaultSpeciesSet, neat.DefaultStagnation,
                          config_file)
@@ -23,13 +24,15 @@ def run_neat(config_file, env):
     stats = neat.StatisticsReporter()
     population.add_reporter(stats)
     population.add_reporter(neat.Checkpointer(5))
-    winner = population.run(
-        lambda genomes, config: eval_genomes(genomes, config, env))
+
+    parallel = neat.ParallelEvaluator(
+        6, eval_genome)
+    winner = population.run(parallel.evaluate)
+    with open('best.genome', 'wb') as file:
+        pickle.dump(winner, file)
 
 
 if __name__ == '__main__':
     local_dir = os.path.dirname(__file__)
     config_path = os.path.join('config-feedforward')
-    env = retro.make(game='SuperMarioWorld-Snes',
-                          state='YoshiIsland1.state', scenario='scenario.json')
-    run_neat(config_path, env)
+    run_neat(config_path)

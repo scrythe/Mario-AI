@@ -5,14 +5,17 @@ import numpy
 
 
 class Game:
-    def __init__(self, genome: neat.DefaultGenome, config, env: retro.RetroEnv):
+    def __init__(self, genome: neat.DefaultGenome, config):
         self.genome = genome
         self.net = neat.nn.RecurrentNetwork.create(genome, config)
-        self.env = env
+        self.env = retro.make(game='SuperMarioWorld-Snes',
+                              state='YoshiIsland1.state', scenario='scenario.json')
         self.screen = self.env.reset()
         self.done = False
         self.data = self.env.data
         self.data.__setitem__('lives', 1)
+
+        self.last_time_reward = 0
         # cv2.namedWindow("main", cv2.WINDOW_NORMAL)
 
         width, height, color = self.env.observation_space.shape
@@ -30,6 +33,13 @@ class Game:
         actions = self.get_actions()
         self.screen, reward, self.done, info = self.env.step(actions)
         self.genome.fitness += reward
+        if reward > 0:
+            self.last_time_reward = 0
+        else:
+            self.last_time_reward += 1
+
+        if self.last_time_reward > 250:
+            self.done = True
 
     def rescale_screen(self):
         resized_screen = cv2.resize(
