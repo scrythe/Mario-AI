@@ -7,6 +7,7 @@ name = "pypi"
 gym-retro = "*"
 neat-python = "*"
 gym = "==0.21.0"
+opencv-python = "*"
 
 [dev-packages]
 autopep8 = "*"
