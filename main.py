@@ -27,7 +27,7 @@ def run_neat(config_file):
 
     parallel = neat.ParallelEvaluator(
         6, eval_genome)
-    winner = population.run(parallel.evaluate, 1)
+    winner = population.run(parallel.evaluate)
     # winner = population.run(eval_genome)
     with open('best.genome', 'wb') as file:
         pickle.dump(winner, file)
@@ -45,5 +45,5 @@ def run_best_genome(config_file):
 if __name__ == '__main__':
     local_dir = os.path.dirname(__file__)
     config_path = os.path.join('config-feedforward')
-    # run_neat(config_path)
-    run_best_genome(config_path)
+    run_neat(config_path)
+    # run_best_genome(config_path)

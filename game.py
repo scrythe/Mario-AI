@@ -33,10 +33,14 @@ class Game:
         return actions
 
     def run(self):
-        self.env.render()
+        # self.env.render()
         actions = self.get_actions()
         self.screen, reward, self.done, info = self.env.step(actions)
         self.xpos = info['x']
+        endOfLevel = info['x']
+
+        if endOfLevel == 1:
+            self.current_fitness += 100000
 
         self.current_fitness += reward
         if self.xpos > self.previous_xpos:
