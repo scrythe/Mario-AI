@@ -9,13 +9,17 @@ class Game:
         self.genome = genome
         self.net = neat.nn.RecurrentNetwork.create(genome, config)
         self.env = retro.make(game='SuperMarioWorld-Snes',
-                              state='YoshiIsland1.state', scenario='scenario.json')
+                              state='YoshiIsland1.state', scenario='scenario.json', info='data.json')
         self.screen = self.env.reset()
         self.done = False
         self.data = self.env.data
         self.data.__setitem__('lives', 1)
 
         self.last_time_reward = 0
+        self.current_fitness = 0
+        self.previous_fitness = 0
+        self.xpos = 0
+        self.previous_xpos = 0
         # cv2.namedWindow("main", cv2.WINDOW_NORMAL)
 
         width, height, color = self.env.observation_space.shape
@@ -32,9 +36,16 @@ class Game:
         self.env.render()
         actions = self.get_actions()
         self.screen, reward, self.done, info = self.env.step(actions)
-        self.genome.fitness += reward
-        if reward > 0:
+        self.xpos = info['x']
+
+        self.current_fitness += reward
+        if self.xpos > self.previous_xpos:
+            self.current_fitness += 1
+            self.previous_xpos = self.xpos
+
+        if self.current_fitness > self.previous_fitness:
             self.last_time_reward = 0
+            self.previous_fitness = self.current_fitness
         else:
             self.last_time_reward += 1
 
